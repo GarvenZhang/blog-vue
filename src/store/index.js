@@ -1,55 +1,37 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex';
+import global from './global';
 
-import global from './global'
+import {
+	toCamel
+} from '../extend/util';
 
-const {state, getters, mutations, actions} = global
+const {
+	state,
+	getters,
+	mutations,
+	actions
+} = global;
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 const store = new Vuex.Store({
-  state,
-  getters,
-  mutations,
-  actions
-})
-
-registerModules(require.context('./modules', false, /\.js/))
-
-// 自动注册模块
-function registerModules (rFn) {
-  rFn.keys().map((item) => {
-    const moduleName = toCamel((item.replace('\.\/', '').replace('\.js', '')))
-
-    store.registerModule(moduleName, rFn(item).default)
-  })
-}
+	state,
+	getters,
+	mutations,
+	actions
+});
 
 /**
- * 转化为驼峰
- * @param {String} str
- * @example a.bb.cc ==> aBbCc
+ * 自动注册模块
  */
-function toCamel (str) {
-  if (!str) {
-    return
-  }
+function registerModule(rFn) {
+	rFn.keys().map((item) => {
+		const moduleName = toCamel(item.replace('\.\/', '').replace('\.js', ''));
+		store.registerModule(moduleName, rFn(item).default);
+	})
+};
 
-  if (!str.includes('.')) {
-    return str
-  }
+registerModule(require.context('./modules', false, /\.js$/));
 
-  str = str.split('.')
-
-  str = str.map((item, index) => {
-    if (index !== 0) {
-      item = item.slice(0, 1).toUpperCase() + item.slice(1)
-    }
-
-    return item
-  })
-
-  return str.join('')
-}
-
-export default store
+export default store;
